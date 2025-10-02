@@ -22,8 +22,8 @@ class Tache:
 
     def __str__(self):
         """Représentation lisible de la tâche"""
-        etat_texte = "terminé" if self.etat else "en cours"
-        return f"{self.nom} - {etat_texte}"
+        etat_str = "Terminé" if self.etat else "En cours"
+        return f"[{etat_str}] {self.nom}"
 
 
 class GestionnaireTaches:
@@ -68,14 +68,3 @@ def chargeSimpleJson(filename):
     except FileNotFoundError:
         print(f"Le fichier '{filename}' n'existe pas.")
         return []
-
-def chargeWJson(filename):
-    try:
-        with open(filename, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except UnicodeDecodeError:
-        messagebox.showerror("Erreur", "Le fichier n'est pas compatible.")
-    except FileNotFoundError:
-        messagebox.showerror("Erreur", "Le fichier n'existe pas.")
-    except json.decoder.JSONDecodeError:
-        messagebox.showerror("Erreur", "Le fichier semble illisible.")
