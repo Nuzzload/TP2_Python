@@ -1,83 +1,91 @@
 import tkinter as tk
 from tkinter import ttk
+import functionsTKINTER as ft
 
-from functionsTKINTER import gestionnaire, load_file_W, toggle_task_state, add_task_from_gui, remove_task_from_gui, toggle_state_from_gui, save_file_W
+def main_tkinter():
+    """Crée et lance l'interface graphique du gestionnaire de tâches."""
+    # --- Fenêtre principale ---
+    root = tk.Tk()
+    root.title("Gestionnaire de tâches")
+    root.geometry("600x550")
+    root.configure(bg="#F0F0F0")
 
-root = tk.Tk()
-root.title("Gestionnaire de tâches")
-root.geometry("600x500")
-# La fenêtre est maintenant redimensionnable par défaut
+    # --- Style ---
+    style = ttk.Style(root)
+    style.theme_use("clam")
 
-# --- Widgets pour afficher la liste ---
-# Frame pour la listbox et les scrollbars
-list_frame = tk.Frame(root)
-# Le expand=True centre le bloc dans la fenêtre. padx et pady ajoutent de l'espace autour.
-list_frame.pack(pady=20, padx=20, expand=True)
+    style.configure("Treeview",
+                    background="#FFFFFF",
+                    foreground="black",
+                    rowheight=25,
+                    fieldbackground="#FFFFFF")
+    style.map('Treeview', background=[('selected', '#BDD5EF')])
 
-# On utilise grid() à l'intérieur de list_frame pour un meilleur contrôle
-list_frame.grid_rowconfigure(0, weight=1)
-list_frame.grid_columnconfigure(0, weight=1)
+    style.configure("TButton",
+                    padding=6,
+                    font=('Helvetica', 10),
+                    relief="solid",
+                    borderwidth=1)
+    style.map("TButton",
+              bordercolor=[('active', '#3399FF')],
+              relief=[('pressed', 'sunken')])
 
-# Treeview pour un affichage en colonnes
-tree = ttk.Treeview(list_frame, columns=("state", "name"), show="headings", height=10)
-tree.heading("state", text="État")
-tree.heading("name", text="Tâche")
-tree.column("state", width=80, anchor="center", stretch=tk.NO)
-tree.column("name", width=300, stretch=tk.NO)
+    # --- Widgets ---
+    # Cadre pour la liste des tâches
+    list_frame = ttk.Frame(root, padding="20 10 20 10")
+    list_frame.pack(fill="both", expand=True)
+    list_frame.grid_rowconfigure(0, weight=1)
+    list_frame.grid_columnconfigure(0, weight=1)
 
-tree.grid(row=0, column=0, sticky="nsew")
-tree.bind("<Double-1>", toggle_task_state)
+    # Arbre pour afficher les tâches
+    tree = ttk.Treeview(list_frame, columns=("state", "name"), show="headings", height=10)
+    tree.heading("state", text="État")
+    tree.heading("name", text="Tâche")
+    tree.column("state", width=100, anchor="center")
+    tree.column("name", width=350)
+    tree.grid(row=0, column=0, sticky="nsew")
+    tree.bind("<Double-1>", ft.basculer_etat_double_clic)
 
-# Scrollbar Verticale
-y_scrollbar = tk.Scrollbar(list_frame, orient=tk.VERTICAL, command=tree.yview)
-y_scrollbar.grid(row=0, column=1, sticky="ns")
-tree.config(yscrollcommand=y_scrollbar.set)
+    # Barre de défilement
+    y_scrollbar = ttk.Scrollbar(list_frame, orient=tk.VERTICAL, command=tree.yview)
+    y_scrollbar.grid(row=0, column=1, sticky="ns")
+    tree.config(yscrollcommand=y_scrollbar.set)
 
-# Scrollbar Horizontale
-x_scrollbar = tk.Scrollbar(list_frame, orient=tk.HORIZONTAL, command=tree.xview)
-x_scrollbar.grid(row=1, column=0, sticky="ew")
-tree.config(xscrollcommand=x_scrollbar.set)
+    # Cadre pour l'ajout de tâches
+    add_frame = ttk.Frame(root, padding="20 10 20 10")
+    add_frame.pack(fill="x")
 
+    task_entry = ttk.Entry(add_frame, font=('Helvetica', 11))
+    task_entry.pack(side=tk.LEFT, fill="x", expand=True, padx=(0, 10))
 
-# --- Widgets pour l'ajout de tâches ---
-add_frame = tk.Frame(root)
-add_frame.pack(pady=(0, 10), padx=20, fill="x")
+    add_button = ttk.Button(add_frame, text="Ajouter", command=lambda: ft.ajouter_tache_ihm(task_entry, tree))
+    add_button.pack(side=tk.RIGHT)
 
-task_entry = tk.Entry(add_frame)
-task_entry.pack(side=tk.LEFT, fill="x", expand=True, padx=(0, 10))
+    # Cadre pour les boutons d'action
+    action_frame = ttk.Frame(root, padding="20 10 20 20")
+    action_frame.pack(fill="x")
 
-add_button = tk.Button(add_frame, text="Ajouter", command=lambda: add_task_from_gui(task_entry, tree))
-add_button.pack(side=tk.RIGHT)
+    toggle_button = ttk.Button(action_frame, text="Changer État", command=lambda: ft.basculer_etat_ihm(tree))
+    toggle_button.pack(side=tk.LEFT, expand=True, padx=5)
 
+    delete_button = ttk.Button(action_frame, text="Supprimer", command=lambda: ft.supprimer_tache_ihm(tree))
+    delete_button.pack(side=tk.LEFT, expand=True, padx=5)
 
-# --- Frame for action buttons ---
-action_frame = tk.Frame(root)
-action_frame.pack(pady=10, padx=20, fill="x")
+    # --- Barre de Menus ---
+    menubar = tk.Menu(root)
+    root.config(menu=menubar)
 
-toggle_button = tk.Button(action_frame, text="Changer État", command=lambda: toggle_state_from_gui(tree))
-toggle_button.pack(side=tk.LEFT, expand=True, padx=5)
+    menu_fichier = tk.Menu(menubar, tearoff=0)
+    menubar.add_cascade(label="Fichier", menu=menu_fichier)
 
-delete_button = tk.Button(action_frame, text="Supprimer", command=lambda: remove_task_from_gui(tree))
-delete_button.pack(side=tk.LEFT, expand=True, padx=5)
+    menu_fichier.add_command(label="Sauvegarder", command=ft.sauvegarder_fichier)
+    menu_fichier.add_command(label="Charger", command=lambda: ft.charger_fichier(tree))
+    menu_fichier.add_separator()
+    menu_fichier.add_command(label="Quitter", command=root.quit)
 
+    # --- Lancement ---
+    ft.mettre_a_jour_liste_taches(tree) # Premier affichage
+    root.mainloop()
 
-# --- Barre de Menus ---
-menubar = tk.Menu(root)
-
-# Création d'un menu "Fichier"
-menu_fichier = tk.Menu(menubar, tearoff=0)
-menu_fichier.add_command(label="Sauvegarder", command=save_file_W)
-menu_fichier.add_command(label="Charger", command=lambda: load_file_W(tree))
-menu_fichier.add_separator()
-menu_fichier.add_command(label="Quitter", command=root.quit)
-
-# Ajout du menu "Fichier" dans la barre
-menubar.add_cascade(label="Fichier", menu=menu_fichier)
-
-# On attache la barre de menus à la fenêtre
-root.config(menu=menubar)
-
-
-
-
-root.mainloop()
+if __name__ == "__main__":
+    main_tkinter()

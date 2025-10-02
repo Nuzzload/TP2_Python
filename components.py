@@ -52,7 +52,10 @@ class GestionnaireTaches:
 
     def charger(self, filename):
         data = chargeSimpleJson(filename)
-        self.taches = [Tache.from_dict(d) for d in data]
+        if data is not None:
+            self.taches = [Tache.from_dict(d) for d in data]
+            return True  # Succès
+        return False  # Échec
 
 
 def sauvegardeSimpleJson(data, filename):
@@ -63,8 +66,6 @@ def sauvegardeSimpleJson(data, filename):
 def chargeSimpleJson(filename):
     try:
         with open(filename, "r", encoding="utf-8") as f:
-            print(f"Chargement effectué depuis '{filename}'.")
             return json.load(f)
     except FileNotFoundError:
-        print(f"Le fichier '{filename}' n'existe pas.")
-        return []
+        return None
