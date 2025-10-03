@@ -12,7 +12,7 @@ class Tache:
         self.etat = not self.etat
 
     def to_dict(self):
-        """Convertit l'objet en dictionnaire JSON-serializable"""
+        """Convertit l'objet en dictionnaire JSON"""
         return {"nom": self.nom, "etat": self.etat}
 
     @staticmethod

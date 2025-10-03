@@ -37,7 +37,7 @@ def main_tkinter():
     list_frame.grid_rowconfigure(0, weight=1)
     list_frame.grid_columnconfigure(0, weight=1)
 
-    # Arbre pour afficher les tâches
+    # "Arbre" pour afficher les tâches
     tree = ttk.Treeview(list_frame, columns=("state", "name"), show="headings", height=10)
     tree.heading("state", text="État")
     tree.heading("name", text="Tâche")
@@ -45,6 +45,8 @@ def main_tkinter():
     tree.column("name", width=350)
     tree.grid(row=0, column=0, sticky="nsew")
     tree.bind("<Double-1>", ft.basculer_etat_double_clic)
+    tree.bind("<Motion>", ft.gerer_mouvement_tree)
+    tree.bind("<Leave>", ft.gerer_sortie_tree)
 
     # Barre de défilement
     y_scrollbar = ttk.Scrollbar(list_frame, orient=tk.VERTICAL, command=tree.yview)

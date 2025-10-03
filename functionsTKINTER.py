@@ -6,6 +6,10 @@ from components import GestionnaireTaches, Tache
 
 gestionnaire = GestionnaireTaches()
 
+# Variables pour gérer l'infobulle
+fenetre_infobulle = None
+id_delai_infobulle = None
+
 def mettre_a_jour_liste_taches(tree: ttk.Treeview):
     """Efface et met à jour l'arbre avec les tâches du gestionnaire."""
     # Configuration des tags pour les couleurs
@@ -52,8 +56,7 @@ def charger_fichier(tree: ttk.Treeview):
     """Ouvre un explorateur de fichiers pour charger un fichier JSON."""
     filepath = filedialog.askopenfilename(
         title="Choisir un fichier",
-        filetypes=[("Fichiers JSON", "*.json"), ("Tous les fichiers", "*.*")]
-    )
+        filetypes=[("Fichiers JSON", "*.json"), ("Tous les fichiers", "*.*")])
     if not filepath:
         return
 
@@ -119,9 +122,8 @@ def sauvegarder_fichier():
     """Ouvre un explorateur de fichiers pour sauvegarder les tâches."""
     filepath = filedialog.asksaveasfilename(
         title="Sauvegarder les tâches",
-        filetypes=[("Fichiers JSON", "*.json"), ("Tous les fichiers", "*.*")],
-        defaultextension=".json"
-    )
+        filetypes=[("Fichiers JSON", "*.json"), ("Tous les fichiers", "*.* ")],
+        defaultextension=".json")
     if not filepath:
         return
 
@@ -130,3 +132,58 @@ def sauvegarder_fichier():
         messagebox.showinfo("Succès", f"Tâches sauvegardées dans {filepath}")
     except Exception as e:
         messagebox.showerror("Erreur inattendue", f"Une erreur est survenue: {e}")
+
+def afficher_infobulle(tree, text):
+    """Crée et affiche la fenêtre de l'infobulle."""
+    global fenetre_infobulle
+    if fenetre_infobulle:
+        fenetre_infobulle.destroy()
+
+    x = tree.winfo_pointerx() + 15
+    y = tree.winfo_pointery() + 10
+
+    fenetre_infobulle = tw = tk.Toplevel(tree)
+    tw.wm_overrideredirect(True)
+    tw.wm_geometry(f"+{x}+{y}")
+    
+    label = tk.Label(tw, text=text, justify=tk.LEFT,
+                     background="#ffffe0", relief=tk.SOLID, borderwidth=1,
+                     font=("tahoma", "8", "normal"))
+    label.pack(ipadx=1)
+
+def masquer_infobulle():
+    """Détruit la fenêtre de l'infobulle si elle existe."""
+    global fenetre_infobulle
+    if fenetre_infobulle:
+        fenetre_infobulle.destroy()
+        fenetre_infobulle = None
+
+def gerer_mouvement_tree(event):
+    """Gère le mouvement de la souris sur le Treeview pour afficher une infobulle."""
+    global id_delai_infobulle
+    tree = event.widget
+
+    if id_delai_infobulle:
+        tree.after_cancel(id_delai_infobulle)
+        id_delai_infobulle = None
+    masquer_infobulle()
+
+    row_id = tree.identify_row(event.y)
+    column_id = tree.identify_column(event.x)
+
+    if column_id == "#2" and row_id:
+        try:
+            index = int(row_id)
+            task_name = gestionnaire.taches[index].nom
+            id_delai_infobulle = tree.after(500, lambda: afficher_infobulle(tree, task_name))
+        except (ValueError, IndexError):
+            pass
+
+def gerer_sortie_tree(event):
+    """Gère la sortie de la souris du Treeview pour masquer l'infobulle."""
+    global id_delai_infobulle
+    tree = event.widget
+    if id_delai_infobulle:
+        tree.after_cancel(id_delai_infobulle)
+        id_delai_infobulle = None
+    masquer_infobulle()
