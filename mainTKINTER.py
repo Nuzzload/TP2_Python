@@ -4,13 +4,11 @@ import functionsTKINTER as ft
 
 def main_tkinter():
     """Crée et lance l'interface graphique du gestionnaire de tâches."""
-    # --- Fenêtre principale ---
     root = tk.Tk()
     root.title("Gestionnaire de tâches")
     root.geometry("600x550")
     root.configure(bg="#F0F0F0")
 
-    # --- Style ---
     style = ttk.Style(root)
     style.theme_use("clam")
 
@@ -30,7 +28,6 @@ def main_tkinter():
               bordercolor=[('active', '#3399FF')],
               relief=[('pressed', 'sunken')])
 
-    # --- Widgets ---
     # Cadre pour la liste des tâches
     list_frame = ttk.Frame(root, padding="20 10 20 10")
     list_frame.pack(fill="both", expand=True)
@@ -73,7 +70,6 @@ def main_tkinter():
     delete_button = ttk.Button(action_frame, text="Supprimer", command=lambda: ft.supprimer_tache_ihm(tree))
     delete_button.pack(side=tk.LEFT, expand=True, padx=5)
 
-    # --- Barre de Menus ---
     menubar = tk.Menu(root)
     root.config(menu=menubar)
 
@@ -85,8 +81,8 @@ def main_tkinter():
     menu_fichier.add_separator()
     menu_fichier.add_command(label="Quitter", command=root.quit)
 
-    # --- Lancement ---
-    ft.mettre_a_jour_liste_taches(tree) # Premier affichage
+    # Premier affichage
+    ft.mettre_a_jour_liste_taches(tree)
     root.mainloop()
 
 if __name__ == "__main__":

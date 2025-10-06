@@ -1,0 +1,14 @@
+[
+    {
+        "nom": "Faire les courses",
+        "etat": false
+    },
+    {
+        "nom": "Vérifier le contenu du frigo",
+        "etat": true
+    },
+    {
+        "nom": "Sortir le chien",
+        "etat": true
+    }
+]
